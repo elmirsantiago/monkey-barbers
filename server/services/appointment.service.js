@@ -50,7 +50,6 @@ const createAppointment = async (data) => {
     customerPhone,
   } = data;
 
-  // Validamos campos obligatorios
   if (
     !service ||
     !barber ||
@@ -62,35 +61,28 @@ const createAppointment = async (data) => {
     throw new Error("Todos los campos son obligatorios");
   }
 
-  // Buscamos el servicio seleccionado
   const selectedService = SERVICES[service];
 
   if (!selectedService) {
     throw new Error("Servicio inválido");
   }
 
-  // Validamos el barbero
   if (!["bruno", "santi"].includes(barber)) {
     throw new Error("Barbero inválido");
   }
 
-  // Validamos fecha y horario
   validateDate(date);
   validateTime(time, selectedService.duration);
 
   const newStart = timeToMinutes(time);
   const newEnd = newStart + selectedService.duration;
 
-  // Buscamos los turnos ya confirmados
-  // de ese barbero para ese día
   const existingAppointments = await Appointment.find({
     barber,
     date,
     status: "confirmed",
   });
 
-  // Revisamos si el nuevo turno se superpone
-  // con alguno que ya exista
   const hasConflict = existingAppointments.some(
     (appointment) => {
       const existingStart = timeToMinutes(
@@ -113,7 +105,6 @@ const createAppointment = async (data) => {
     );
   }
 
-  // Creamos el turno en MongoDB
   const appointment = await Appointment.create({
     service,
     barber,
@@ -125,8 +116,6 @@ const createAppointment = async (data) => {
     customerPhone: customerPhone.trim(),
   });
 
-  // Una vez guardado el turno,
-  // intentamos enviar la confirmación por WhatsApp
   try {
     await sendAppointmentConfirmation({
       customerName: appointment.customerName,
@@ -138,8 +127,6 @@ const createAppointment = async (data) => {
       time: appointment.time,
     });
   } catch (error) {
-    // Si WhatsApp falla, NO eliminamos el turno.
-    // El turno ya quedó guardado correctamente.
     console.error(
       "⚠️ El turno fue creado pero falló WhatsApp:",
       error.message
@@ -154,7 +141,6 @@ const getAvailability = async (
   barber,
   date
 ) => {
-  // Validamos parámetros
   if (!service || !barber || !date) {
     throw new Error(
       "Servicio, barbero y fecha son obligatorios"
@@ -173,8 +159,6 @@ const getAvailability = async (
 
   validateDate(date);
 
-  // Buscamos los turnos confirmados
-  // del barbero seleccionado
   const appointments = await Appointment.find({
     barber,
     date,
@@ -186,7 +170,6 @@ const getAvailability = async (
 
   const availableTimes = [];
 
-  // Generamos horarios cada 10 minutos
   for (
     let start = openingMinutes;
     start + selectedService.duration <=
@@ -196,8 +179,6 @@ const getAvailability = async (
     const end =
       start + selectedService.duration;
 
-    // Revisamos si este posible horario
-    // se pisa con algún turno existente
     const hasConflict = appointments.some(
       (appointment) => {
         const existingStart = timeToMinutes(
@@ -222,6 +203,26 @@ const getAvailability = async (
   }
 
   return availableTimes;
+};
+
+const getAppointments = async (date) => {
+  const filter = {
+    status: "confirmed",
+  };
+
+  if (date) {
+    validateDate(date);
+    filter.date = date;
+  }
+
+  const appointments = await Appointment.find(
+    filter
+  ).sort({
+    date: 1,
+    time: 1,
+  });
+
+  return appointments;
 };
 
 function validateDate(date) {
@@ -346,4 +347,5 @@ function createLocalDate(date) {
 module.exports = {
   createAppointment,
   getAvailability,
+  getAppointments,
 };

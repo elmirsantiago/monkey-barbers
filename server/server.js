@@ -5,13 +5,16 @@ const dotenv = require("dotenv");
 dotenv.config();
 
 const connectDB = require("./config/db");
-const appointmentRoutes = require("./routes/appointment.routes");
+
+const appointmentRoutes = require(
+  "./routes/appointment.routes"
+);
 
 const app = express();
 
-const PORT = process.env.API_PORT || 4000;
+const PORT =
+  process.env.API_PORT || 4000;
 
-// MIDDLEWARES
 app.use(
   cors({
     origin: "http://localhost:3000",
@@ -20,17 +23,19 @@ app.use(
 
 app.use(express.json());
 
-// RUTAS
 app.get("/api/health", (req, res) => {
   res.status(200).json({
     status: "ok",
-    message: "Monkey Barber's API funcionando",
+    message:
+      "Monkey Barber's API funcionando",
   });
 });
 
-app.use("/api/appointments", appointmentRoutes);
+app.use(
+  "/api/appointments",
+  appointmentRoutes
+);
 
-// INICIAR SERVIDOR
 const startServer = async () => {
   await connectDB();
 

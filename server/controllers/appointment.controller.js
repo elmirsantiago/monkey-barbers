@@ -5,7 +5,9 @@ const appointmentService = require(
 const createAppointment = async (req, res) => {
   try {
     const appointment =
-      await appointmentService.createAppointment(req.body);
+      await appointmentService.createAppointment(
+        req.body
+      );
 
     res.status(201).json({
       status: "success",
@@ -22,7 +24,11 @@ const createAppointment = async (req, res) => {
 
 const getAvailability = async (req, res) => {
   try {
-    const { service, barber, date } = req.query;
+    const {
+      service,
+      barber,
+      date,
+    } = req.query;
 
     const availableTimes =
       await appointmentService.getAvailability(
@@ -43,7 +49,29 @@ const getAvailability = async (req, res) => {
   }
 };
 
+const getAppointments = async (req, res) => {
+  try {
+    const { date } = req.query;
+
+    const appointments =
+      await appointmentService.getAppointments(
+        date
+      );
+
+    res.status(200).json({
+      status: "success",
+      appointments,
+    });
+  } catch (error) {
+    res.status(400).json({
+      status: "error",
+      message: error.message,
+    });
+  }
+};
+
 module.exports = {
   createAppointment,
   getAvailability,
+  getAppointments,
 };

@@ -1,59 +1,10 @@
 import Image from "next/image";
+import Navbar from "@/components/Navbar";
 
 export default function Home() {
   return (
     <main className="min-h-screen bg-black text-white">
-      {/* NAVBAR */}
-      <header className="fixed left-0 top-0 z-50 w-full border-b border-white/10 bg-black/90 backdrop-blur-md">
-        <nav className="mx-auto flex max-w-7xl items-center justify-between px-6 py-4">
-          <a href="#inicio" className="flex items-center gap-3">
-            <Image
-              src="/images/logo.jpg"
-              alt="Monkey Barber's"
-              width={65}
-              height={65}
-              className="rounded-full"
-              priority
-            />
-
-            <div>
-              <p className="text-lg font-bold tracking-wider">
-                MONKEY BARBER&apos;S
-              </p>
-              <p className="text-xs text-neutral-400">EST. 2022</p>
-            </div>
-          </a>
-
-          <div className="hidden items-center gap-8 md:flex">
-            <a href="#inicio" className="transition hover:text-red-500">
-              Inicio
-            </a>
-
-            <a href="#servicios" className="transition hover:text-red-500">
-              Servicios
-            </a>
-
-            <a href="#barberos" className="transition hover:text-red-500">
-              Barberos
-            </a>
-
-            <a href="#reservar" className="transition hover:text-red-500">
-              Turnos
-            </a>
-
-            <a href="#contacto" className="transition hover:text-red-500">
-              Contacto
-            </a>
-
-            <a
-              href="#reservar"
-              className="rounded-md bg-red-600 px-5 py-3 font-bold transition hover:bg-red-700"
-            >
-              RESERVAR TURNO
-            </a>
-          </div>
-        </nav>
-      </header>
+      <Navbar />
 
       {/* HERO */}
       <section
@@ -226,8 +177,8 @@ export default function Home() {
             </h2>
 
             <p className="mx-auto mt-4 max-w-2xl text-neutral-400">
-              Muy pronto vas a poder elegir servicio, barbero, día y horario
-              directamente desde acá.
+              Elegí tu servicio, barbero, fecha y horario para reservar tu
+              próximo turno.
             </p>
           </div>
 
@@ -330,13 +281,11 @@ export default function Home() {
               Visitá Monkey Barber&apos;s
             </p>
 
-            <h2 className="text-4xl font-black sm:text-5xl">
-              CONTACTO
-            </h2>
+            <h2 className="text-4xl font-black sm:text-5xl">CONTACTO</h2>
 
             <p className="mt-5 max-w-xl text-lg leading-8 text-neutral-400">
-              Estamos en Mendoza 7065, Rosario. Atendemos de martes a sábado
-              de 10:00 a 19:00.
+              Estamos en Mendoza 7065, Rosario. Atendemos de martes a sábado de
+              10:00 a 19:00.
             </p>
 
             <div className="mt-10 space-y-5">
@@ -435,13 +384,10 @@ function ServiceCard({
       <div className="mb-8 flex items-start justify-between gap-4">
         <div>
           <p className="mb-2 text-sm text-neutral-500">{duration}</p>
-
           <h3 className="text-2xl font-bold">{name}</h3>
         </div>
 
-        <span className="text-2xl font-black text-red-500">
-          {price}
-        </span>
+        <span className="text-2xl font-black text-red-500">{price}</span>
       </div>
 
       <a

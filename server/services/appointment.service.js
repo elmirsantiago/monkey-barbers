@@ -40,6 +40,10 @@ const OPENING_HOUR = 10;
 const CLOSING_HOUR = 19;
 const SLOT_INTERVAL = 10;
 
+// ==========================================
+// CREAR TURNO
+// ==========================================
+
 const createAppointment = async (data) => {
   const {
     service,
@@ -116,6 +120,8 @@ const createAppointment = async (data) => {
     customerPhone: customerPhone.trim(),
   });
 
+  // El turno ya está guardado.
+  // Si WhatsApp falla, NO perdemos la reserva.
   try {
     await sendAppointmentConfirmation({
       customerName: appointment.customerName,
@@ -135,6 +141,10 @@ const createAppointment = async (data) => {
 
   return appointment;
 };
+
+// ==========================================
+// CONSULTAR DISPONIBILIDAD
+// ==========================================
 
 const getAvailability = async (
   service,
@@ -205,6 +215,10 @@ const getAvailability = async (
   return availableTimes;
 };
 
+// ==========================================
+// LISTAR TURNOS
+// ==========================================
+
 const getAppointments = async (date) => {
   const filter = {
     status: "confirmed",
@@ -224,6 +238,37 @@ const getAppointments = async (date) => {
 
   return appointments;
 };
+
+// ==========================================
+// CANCELAR TURNO
+// ==========================================
+
+const cancelAppointment = async (
+  appointmentId
+) => {
+  const appointment =
+    await Appointment.findById(appointmentId);
+
+  if (!appointment) {
+    throw new Error("Turno no encontrado");
+  }
+
+  if (appointment.status === "cancelled") {
+    throw new Error(
+      "El turno ya está cancelado"
+    );
+  }
+
+  appointment.status = "cancelled";
+
+  await appointment.save();
+
+  return appointment;
+};
+
+// ==========================================
+// VALIDACIONES Y HELPERS
+// ==========================================
 
 function validateDate(date) {
   const selectedDate = createLocalDate(date);
@@ -348,4 +393,5 @@ module.exports = {
   createAppointment,
   getAvailability,
   getAppointments,
+  cancelAppointment,
 };

@@ -1,7 +1,11 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
+import {
+  useEffect,
+  useMemo,
+  useState,
+} from "react";
 
 const API_URL =
   process.env.NEXT_PUBLIC_API_URL ||
@@ -30,19 +34,22 @@ const SERVICE_NAMES: Record<string, string> = {
 };
 
 export default function AdminPage() {
-  const [appointments, setAppointments] = useState<
-    Appointment[]
-  >([]);
+  const [appointments, setAppointments] =
+    useState<Appointment[]>([]);
 
   const [selectedDate, setSelectedDate] =
     useState(getToday());
 
-  const [barberFilter, setBarberFilter] = useState<
-    "all" | "bruno" | "santi"
-  >("all");
+  const [barberFilter, setBarberFilter] =
+    useState<
+      "all" | "bruno" | "santi"
+    >("all");
 
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState("");
+  const [loading, setLoading] =
+    useState(true);
+
+  const [error, setError] =
+    useState("");
 
   useEffect(() => {
     loadAppointments();
@@ -69,7 +76,9 @@ export default function AdminPage() {
         );
       }
 
-      setAppointments(data.appointments || []);
+      setAppointments(
+        data.appointments || []
+      );
     } catch (error) {
       setError(
         error instanceof Error
@@ -81,16 +90,21 @@ export default function AdminPage() {
     }
   }
 
-  const filteredAppointments = useMemo(() => {
-    if (barberFilter === "all") {
-      return appointments;
-    }
+  const filteredAppointments =
+    useMemo(() => {
+      if (barberFilter === "all") {
+        return appointments;
+      }
 
-    return appointments.filter(
-      (appointment) =>
-        appointment.barber === barberFilter
-    );
-  }, [appointments, barberFilter]);
+      return appointments.filter(
+        (appointment) =>
+          appointment.barber ===
+          barberFilter
+      );
+    }, [
+      appointments,
+      barberFilter,
+    ]);
 
   const totalRevenue = useMemo(() => {
     return filteredAppointments.reduce(
@@ -100,17 +114,20 @@ export default function AdminPage() {
     );
   }, [filteredAppointments]);
 
-  const brunoAppointments = appointments.filter(
-    (appointment) => appointment.barber === "bruno"
-  ).length;
+  const brunoAppointments =
+    appointments.filter(
+      (appointment) =>
+        appointment.barber === "bruno"
+    ).length;
 
-  const santiAppointments = appointments.filter(
-    (appointment) => appointment.barber === "santi"
-  ).length;
+  const santiAppointments =
+    appointments.filter(
+      (appointment) =>
+        appointment.barber === "santi"
+    ).length;
 
   return (
     <main className="min-h-screen bg-neutral-950 text-white">
-      {/* HEADER */}
       <header className="border-b border-white/10 bg-black">
         <div className="mx-auto flex max-w-7xl items-center justify-between px-6 py-5">
           <div>
@@ -133,7 +150,6 @@ export default function AdminPage() {
       </header>
 
       <div className="mx-auto max-w-7xl px-6 py-8">
-        {/* TITULO */}
         <section className="mb-8">
           <p className="text-sm font-semibold text-red-500">
             Agenda
@@ -144,11 +160,11 @@ export default function AdminPage() {
           </h2>
 
           <p className="mt-2 text-neutral-400">
-            Visualizá las reservas de Bruno y Santi.
+            Administrá las reservas de
+            Bruno y Santi.
           </p>
         </section>
 
-        {/* FILTROS */}
         <section className="mb-8 flex flex-col gap-4 rounded-2xl border border-white/10 bg-black p-5 md:flex-row md:items-end md:justify-between">
           <div className="w-full md:max-w-xs">
             <label
@@ -163,7 +179,9 @@ export default function AdminPage() {
               type="date"
               value={selectedDate}
               onChange={(event) =>
-                setSelectedDate(event.target.value)
+                setSelectedDate(
+                  event.target.value
+                )
               }
               className="w-full rounded-lg border border-white/10 bg-neutral-950 px-4 py-3 text-white outline-none transition focus:border-red-500"
             />
@@ -176,7 +194,9 @@ export default function AdminPage() {
 
             <div className="flex flex-wrap gap-2">
               <FilterButton
-                active={barberFilter === "all"}
+                active={
+                  barberFilter === "all"
+                }
                 onClick={() =>
                   setBarberFilter("all")
                 }
@@ -185,7 +205,9 @@ export default function AdminPage() {
               </FilterButton>
 
               <FilterButton
-                active={barberFilter === "bruno"}
+                active={
+                  barberFilter === "bruno"
+                }
                 onClick={() =>
                   setBarberFilter("bruno")
                 }
@@ -194,7 +216,9 @@ export default function AdminPage() {
               </FilterButton>
 
               <FilterButton
-                active={barberFilter === "santi"}
+                active={
+                  barberFilter === "santi"
+                }
                 onClick={() =>
                   setBarberFilter("santi")
                 }
@@ -205,7 +229,6 @@ export default function AdminPage() {
           </div>
         </section>
 
-        {/* ESTADISTICAS */}
         <section className="mb-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
           <StatCard
             label="Turnos"
@@ -230,14 +253,12 @@ export default function AdminPage() {
           />
         </section>
 
-        {/* ERROR */}
         {error && (
           <div className="mb-6 rounded-xl border border-red-500/30 bg-red-500/10 p-5 text-red-400">
             {error}
           </div>
         )}
 
-        {/* LOADING */}
         {loading && (
           <div className="rounded-2xl border border-white/10 bg-black p-10 text-center">
             <p className="text-neutral-400">
@@ -246,36 +267,42 @@ export default function AdminPage() {
           </div>
         )}
 
-        {/* SIN TURNOS */}
         {!loading &&
           !error &&
-          filteredAppointments.length === 0 && (
+          filteredAppointments.length ===
+            0 && (
             <div className="rounded-2xl border border-dashed border-white/10 bg-black p-12 text-center">
-              <div className="text-4xl">💈</div>
+              <div className="text-4xl">
+                💈
+              </div>
 
               <h3 className="mt-4 text-xl font-bold">
                 No hay turnos
               </h3>
 
               <p className="mt-2 text-neutral-500">
-                No hay reservas para esta fecha y
-                barbero.
+                No hay reservas para esta
+                fecha y barbero.
               </p>
             </div>
           )}
 
-        {/* TURNOS */}
         {!loading &&
-          filteredAppointments.length > 0 && (
+          filteredAppointments.length >
+            0 && (
             <section className="space-y-4">
               <div className="mb-4 flex items-center justify-between">
                 <h3 className="text-xl font-bold">
-                  {formatFullDate(selectedDate)}
+                  {formatFullDate(
+                    selectedDate
+                  )}
                 </h3>
 
                 <button
                   type="button"
-                  onClick={loadAppointments}
+                  onClick={
+                    loadAppointments
+                  }
                   className="text-sm font-semibold text-red-500 transition hover:text-red-400"
                 >
                   Actualizar
@@ -285,8 +312,15 @@ export default function AdminPage() {
               {filteredAppointments.map(
                 (appointment) => (
                   <AppointmentCard
-                    key={appointment._id}
-                    appointment={appointment}
+                    key={
+                      appointment._id
+                    }
+                    appointment={
+                      appointment
+                    }
+                    onCancelled={
+                      loadAppointments
+                    }
                   />
                 )
               )}
@@ -299,22 +333,69 @@ export default function AdminPage() {
 
 function AppointmentCard({
   appointment,
+  onCancelled,
 }: {
   appointment: Appointment;
+  onCancelled: () => Promise<void>;
 }) {
+  const [cancelling, setCancelling] =
+    useState(false);
+
   const barberName =
     appointment.barber === "bruno"
       ? "Bruno"
       : "Santi";
 
   const serviceName =
-    SERVICE_NAMES[appointment.service] ||
-    appointment.service;
+    SERVICE_NAMES[
+      appointment.service
+    ] || appointment.service;
+
+  async function handleCancel() {
+    const confirmed =
+      window.confirm(
+        `¿Cancelar el turno de ${appointment.customerName} a las ${appointment.time}?`
+      );
+
+    if (!confirmed) {
+      return;
+    }
+
+    try {
+      setCancelling(true);
+
+      const response = await fetch(
+        `${API_URL}/api/appointments/${appointment._id}/cancel`,
+        {
+          method: "PATCH",
+        }
+      );
+
+      const data =
+        await response.json();
+
+      if (!response.ok) {
+        throw new Error(
+          data.message ||
+            "No se pudo cancelar el turno"
+        );
+      }
+
+      await onCancelled();
+    } catch (error) {
+      window.alert(
+        error instanceof Error
+          ? error.message
+          : "Error cancelando el turno"
+      );
+    } finally {
+      setCancelling(false);
+    }
+  }
 
   return (
     <article className="overflow-hidden rounded-2xl border border-white/10 bg-black transition hover:border-white/20">
       <div className="flex flex-col md:flex-row">
-        {/* HORA */}
         <div className="flex min-w-32 items-center justify-center bg-red-600 px-6 py-6 md:py-0">
           <div className="text-center">
             <p className="text-3xl font-black">
@@ -322,17 +403,19 @@ function AppointmentCard({
             </p>
 
             <p className="mt-1 text-xs font-bold uppercase tracking-widest text-red-100">
-              {appointment.duration} min
+              {appointment.duration}{" "}
+              min
             </p>
           </div>
         </div>
 
-        {/* INFORMACION */}
         <div className="flex flex-1 flex-col gap-5 p-6 lg:flex-row lg:items-center lg:justify-between">
           <div>
             <div className="flex flex-wrap items-center gap-3">
               <h4 className="text-xl font-black">
-                {appointment.customerName}
+                {
+                  appointment.customerName
+                }
               </h4>
 
               <span className="rounded-full border border-green-500/20 bg-green-500/10 px-3 py-1 text-xs font-bold text-green-400">
@@ -355,7 +438,10 @@ function AppointmentCard({
               <p>
                 Duración:{" "}
                 <strong className="text-white">
-                  {appointment.duration} min
+                  {
+                    appointment.duration
+                  }{" "}
+                  min
                 </strong>
               </p>
             </div>
@@ -375,11 +461,24 @@ function AppointmentCard({
               )}`}
               target="_blank"
               rel="noopener noreferrer"
-              className="mt-3 inline-block text-sm font-semibold text-green-400 transition hover:text-green-300"
+              className="mt-3 block text-sm font-semibold text-green-400 transition hover:text-green-300"
             >
               WhatsApp:{" "}
-              {appointment.customerPhone}
+              {
+                appointment.customerPhone
+              }
             </a>
+
+            <button
+              type="button"
+              onClick={handleCancel}
+              disabled={cancelling}
+              className="mt-4 rounded-lg border border-red-500/30 px-4 py-2 text-sm font-bold text-red-500 transition hover:bg-red-600 hover:text-white disabled:cursor-not-allowed disabled:opacity-50"
+            >
+              {cancelling
+                ? "Cancelando..."
+                : "Cancelar turno"}
+            </button>
           </div>
         </div>
       </div>
@@ -434,7 +533,8 @@ function FilterButton({
 function getToday() {
   const today = new Date();
 
-  const year = today.getFullYear();
+  const year =
+    today.getFullYear();
 
   const month = String(
     today.getMonth() + 1
@@ -447,10 +547,11 @@ function getToday() {
   return `${year}-${month}-${day}`;
 }
 
-function formatFullDate(date: string) {
-  const [year, month, day] = date
-    .split("-")
-    .map(Number);
+function formatFullDate(
+  date: string
+) {
+  const [year, month, day] =
+    date.split("-").map(Number);
 
   const localDate = new Date(
     year,
@@ -458,18 +559,22 @@ function formatFullDate(date: string) {
     day
   );
 
-  return new Intl.DateTimeFormat("es-AR", {
-    weekday: "long",
-    day: "numeric",
-    month: "long",
-    year: "numeric",
-  }).format(localDate);
+  return new Intl.DateTimeFormat(
+    "es-AR",
+    {
+      weekday: "long",
+      day: "numeric",
+      month: "long",
+      year: "numeric",
+    }
+  ).format(localDate);
 }
 
 function normalizeWhatsappPhone(
   phone: string
 ) {
-  const digits = phone.replace(/\D/g, "");
+  const digits =
+    phone.replace(/\D/g, "");
 
   if (digits.startsWith("54")) {
     return digits;

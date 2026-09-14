@@ -2,6 +2,10 @@ const appointmentService = require(
   "../services/appointment.service"
 );
 
+// ==========================================
+// CREAR TURNO
+// ==========================================
+
 const createAppointment = async (req, res) => {
   try {
     const appointment =
@@ -21,6 +25,10 @@ const createAppointment = async (req, res) => {
     });
   }
 };
+
+// ==========================================
+// DISPONIBILIDAD
+// ==========================================
 
 const getAvailability = async (req, res) => {
   try {
@@ -49,6 +57,10 @@ const getAvailability = async (req, res) => {
   }
 };
 
+// ==========================================
+// LISTAR TURNOS
+// ==========================================
+
 const getAppointments = async (req, res) => {
   try {
     const { date } = req.query;
@@ -70,8 +82,35 @@ const getAppointments = async (req, res) => {
   }
 };
 
+// ==========================================
+// CANCELAR TURNO
+// ==========================================
+
+const cancelAppointment = async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    const appointment =
+      await appointmentService.cancelAppointment(
+        id
+      );
+
+    res.status(200).json({
+      status: "success",
+      message: "Turno cancelado correctamente",
+      appointment,
+    });
+  } catch (error) {
+    res.status(400).json({
+      status: "error",
+      message: error.message,
+    });
+  }
+};
+
 module.exports = {
   createAppointment,
   getAvailability,
   getAppointments,
+  cancelAppointment,
 };

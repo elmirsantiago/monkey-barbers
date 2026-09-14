@@ -2,68 +2,210 @@ import Image from "next/image";
 
 export default function Home() {
   return (
-    <div className="flex flex-col flex-1 items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-      <main className="flex flex-1 w-full max-w-3xl flex-col items-center justify-between py-32 px-16 bg-white dark:bg-black sm:items-start">
-        <Image
-          className="dark:invert h-5 w-[100px]"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
-        />
-        <div className="flex flex-col items-center gap-6 text-center sm:items-start sm:text-left">
-          <h1 className="max-w-xs text-3xl font-semibold leading-10 tracking-tight text-black dark:text-zinc-50">
-            To get started, edit the{" "}
-            <code className="rounded bg-black/[.06] px-1.5 py-0.5 font-mono text-[0.9em] dark:bg-white/[.08]">
-              page.tsx
-            </code>{" "}
-            file.
-          </h1>
-          <p className="max-w-md text-lg leading-8 text-zinc-600 dark:text-zinc-400">
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Learning
-            </a>{" "}
-            center.
-          </p>
-        </div>
-        <div className="flex flex-col gap-4 text-base font-medium sm:flex-row">
-          <a
-            className="flex h-12 w-full items-center justify-center gap-2 rounded-full bg-foreground px-5 text-background transition-colors hover:bg-[#383838] dark:hover:bg-[#ccc] md:w-[158px]"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
+    <main className="min-h-screen bg-black text-white">
+      {/* NAVBAR */}
+      <header className="fixed left-0 top-0 z-50 w-full border-b border-white/10 bg-black/90 backdrop-blur-md">
+        <nav className="mx-auto flex max-w-7xl items-center justify-between px-6 py-4">
+          <a href="#inicio" className="flex items-center gap-3">
             <Image
-              className="dark:invert h-[14px] w-4"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={14}
+              src="/images/logo.jpg"
+              alt="Monkey Barber's"
+              width={65}
+              height={65}
+              className="rounded-full"
+              priority
             />
-            Deploy Now
+
+            <div>
+              <p className="text-lg font-bold tracking-wider">
+                MONKEY BARBER&apos;S
+              </p>
+              <p className="text-xs text-neutral-400">EST. 2022</p>
+            </div>
           </a>
-          <a
-            className="flex h-12 w-full items-center justify-center rounded-full border border-solid border-black/[.08] px-5 transition-colors hover:border-transparent hover:bg-black/[.04] dark:border-white/[.145] dark:hover:bg-[#1a1a1a] md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Documentation
-          </a>
+
+          <div className="hidden items-center gap-8 md:flex">
+            <a href="#inicio" className="transition hover:text-red-500">
+              Inicio
+            </a>
+
+            <a href="#servicios" className="transition hover:text-red-500">
+              Servicios
+            </a>
+
+            <a href="#barberos" className="transition hover:text-red-500">
+              Barberos
+            </a>
+
+            <a href="#contacto" className="transition hover:text-red-500">
+              Contacto
+            </a>
+
+            <a
+              href="#reservar"
+              className="rounded-md bg-red-600 px-5 py-3 font-bold transition hover:bg-red-700"
+            >
+              RESERVAR TURNO
+            </a>
+          </div>
+        </nav>
+      </header>
+
+      {/* HERO */}
+      <section
+        id="inicio"
+        className="flex min-h-screen items-center justify-center px-6 pt-28"
+      >
+        <div className="mx-auto grid w-full max-w-7xl items-center gap-12 md:grid-cols-2">
+          <div>
+            <p className="mb-4 font-semibold uppercase tracking-[0.35em] text-red-500">
+              Barbería · Rosario
+            </p>
+
+            <h1 className="text-5xl font-black leading-none sm:text-6xl lg:text-8xl">
+              TU ESTILO.
+              <br />
+              <span className="text-neutral-400">NUESTRA</span>
+              <br />
+              PRECISIÓN.
+            </h1>
+
+            <p className="mt-7 max-w-xl text-lg leading-8 text-neutral-400">
+              Cortes, barba y estilo en Monkey Barber&apos;s. Elegí tu servicio,
+              tu barbero y reservá tu próximo turno online.
+            </p>
+
+            <div className="mt-9 flex flex-wrap gap-4">
+              <a
+                href="#reservar"
+                className="rounded-md bg-red-600 px-7 py-4 font-bold transition hover:bg-red-700"
+              >
+                RESERVAR TURNO
+              </a>
+
+              <a
+                href="#servicios"
+                className="rounded-md border border-white/20 px-7 py-4 font-bold transition hover:bg-white hover:text-black"
+              >
+                VER SERVICIOS
+              </a>
+            </div>
+
+            <div className="mt-10 flex flex-wrap gap-6 text-sm text-neutral-400">
+              <span>📍 Mendoza 7065</span>
+              <span>🕙 Mar - Sáb · 10:00 - 19:00</span>
+            </div>
+          </div>
+
+          <div className="flex justify-center">
+            <div className="relative">
+              <div className="absolute inset-0 rounded-full bg-red-600/20 blur-3xl" />
+
+              <Image
+                src="/images/logo.jpg"
+                alt="Logo Monkey Barber's"
+                width={550}
+                height={550}
+                className="relative w-full max-w-[520px] rounded-full"
+                priority
+              />
+            </div>
+          </div>
         </div>
-      </main>
-    </div>
+      </section>
+
+      {/* SERVICIOS */}
+      <section
+        id="servicios"
+        className="border-t border-white/10 bg-neutral-950 px-6 py-24"
+      >
+        <div className="mx-auto max-w-7xl">
+          <div className="mb-14">
+            <p className="mb-3 font-semibold uppercase tracking-[0.35em] text-red-500">
+              Monkey Barber&apos;s
+            </p>
+
+            <h2 className="text-4xl font-black sm:text-5xl">
+              NUESTROS SERVICIOS
+            </h2>
+
+            <p className="mt-4 max-w-2xl text-neutral-400">
+              Elegí el servicio que necesitás y reservá tu turno con Bruno o
+              Santi.
+            </p>
+          </div>
+
+          <div className="grid gap-5 md:grid-cols-2 lg:grid-cols-3">
+            <ServiceCard
+              name="Corte + cejas"
+              price="$15.000"
+              duration="30 min"
+            />
+
+            <ServiceCard
+              name="Corte + barba"
+              price="$17.000"
+              duration="40 min"
+            />
+
+            <ServiceCard
+              name="Barba"
+              price="$10.000"
+              duration="20 min"
+            />
+
+            <ServiceCard
+              name="VIP"
+              price="$12.000"
+              duration="30 min"
+            />
+
+            <ServiceCard
+              name="VIP barba"
+              price="$14.000"
+              duration="40 min"
+            />
+          </div>
+        </div>
+      </section>
+    </main>
+  );
+}
+
+type ServiceCardProps = {
+  name: string;
+  price: string;
+  duration: string;
+};
+
+function ServiceCard({
+  name,
+  price,
+  duration,
+}: ServiceCardProps) {
+  return (
+    <article className="group rounded-xl border border-white/10 bg-black p-7 transition duration-300 hover:-translate-y-1 hover:border-red-600/60">
+      <div className="mb-8 flex items-start justify-between gap-4">
+        <div>
+          <p className="mb-2 text-sm text-neutral-500">{duration}</p>
+
+          <h3 className="text-2xl font-bold">
+            {name}
+          </h3>
+        </div>
+
+        <span className="text-2xl font-black text-red-500">
+          {price}
+        </span>
+      </div>
+
+      <a
+        href="#reservar"
+        className="inline-flex items-center gap-2 font-semibold text-neutral-300 transition group-hover:text-white"
+      >
+        Reservar este servicio
+        <span className="text-red-500">→</span>
+      </a>
+    </article>
   );
 }

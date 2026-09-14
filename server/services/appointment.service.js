@@ -34,6 +34,7 @@ const SERVICES = {
 
 const OPENING_HOUR = 10;
 const CLOSING_HOUR = 19;
+const SLOT_INTERVAL = 10;
 
 const createAppointment = async (data) => {
   const {
@@ -105,6 +106,59 @@ const createAppointment = async (data) => {
   return appointment;
 };
 
+const getAvailability = async (service, barber, date) => {
+  if (!service || !barber || !date) {
+    throw new Error(
+      "Servicio, barbero y fecha son obligatorios"
+    );
+  }
+
+  const selectedService = SERVICES[service];
+
+  if (!selectedService) {
+    throw new Error("Servicio inválido");
+  }
+
+  if (!["bruno", "santi"].includes(barber)) {
+    throw new Error("Barbero inválido");
+  }
+
+  validateDate(date);
+
+  const appointments = await Appointment.find({
+    barber,
+    date,
+    status: "confirmed",
+  });
+
+  const openingMinutes = OPENING_HOUR * 60;
+  const closingMinutes = CLOSING_HOUR * 60;
+
+  const availableTimes = [];
+
+  for (
+    let start = openingMinutes;
+    start + selectedService.duration <= closingMinutes;
+    start += SLOT_INTERVAL
+  ) {
+    const end = start + selectedService.duration;
+
+    const hasConflict = appointments.some((appointment) => {
+      const existingStart = timeToMinutes(appointment.time);
+      const existingEnd =
+        existingStart + appointment.duration;
+
+      return start < existingEnd && end > existingStart;
+    });
+
+    if (!hasConflict) {
+      availableTimes.push(minutesToTime(start));
+    }
+  }
+
+  return availableTimes;
+};
+
 function validateDate(date) {
   const selectedDate = createLocalDate(date);
 
@@ -167,6 +221,15 @@ function timeToMinutes(time) {
   return hours * 60 + minutes;
 }
 
+function minutesToTime(totalMinutes) {
+  const hours = Math.floor(totalMinutes / 60);
+  const minutes = totalMinutes % 60;
+
+  return `${String(hours).padStart(2, "0")}:${String(
+    minutes
+  ).padStart(2, "0")}`;
+}
+
 function createLocalDate(date) {
   if (!/^\d{4}-\d{2}-\d{2}$/.test(date)) {
     return null;
@@ -191,4 +254,5 @@ function createLocalDate(date) {
 
 module.exports = {
   createAppointment,
+  getAvailability,
 };

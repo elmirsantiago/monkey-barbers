@@ -1,5 +1,6 @@
 import Image from "next/image";
 import Navbar from "@/components/Navbar";
+import BookingForm from "@/components/BookingForm";
 
 export default function Home() {
   return (
@@ -182,91 +183,7 @@ export default function Home() {
             </p>
           </div>
 
-          <div className="grid gap-6 rounded-2xl border border-white/10 bg-black p-6 md:grid-cols-2 lg:p-10">
-            <div>
-              <label className="mb-2 block text-sm font-semibold text-neutral-300">
-                Servicio
-              </label>
-
-              <select className="w-full rounded-lg border border-white/10 bg-neutral-950 px-4 py-4 text-white outline-none transition focus:border-red-500">
-                <option>Seleccioná un servicio</option>
-                <option>Corte + cejas</option>
-                <option>Corte + barba</option>
-                <option>Barba</option>
-                <option>VIP</option>
-                <option>VIP barba</option>
-              </select>
-            </div>
-
-            <div>
-              <label className="mb-2 block text-sm font-semibold text-neutral-300">
-                Barbero
-              </label>
-
-              <select className="w-full rounded-lg border border-white/10 bg-neutral-950 px-4 py-4 text-white outline-none transition focus:border-red-500">
-                <option>Seleccioná un barbero</option>
-                <option>Bruno</option>
-                <option>Santi</option>
-              </select>
-            </div>
-
-            <div>
-              <label className="mb-2 block text-sm font-semibold text-neutral-300">
-                Fecha
-              </label>
-
-              <input
-                type="date"
-                className="w-full rounded-lg border border-white/10 bg-neutral-950 px-4 py-4 text-white outline-none transition focus:border-red-500"
-              />
-            </div>
-
-            <div>
-              <label className="mb-2 block text-sm font-semibold text-neutral-300">
-                Horario
-              </label>
-
-              <select className="w-full rounded-lg border border-white/10 bg-neutral-950 px-4 py-4 text-white outline-none transition focus:border-red-500">
-                <option>Seleccioná un horario</option>
-                <option>10:00</option>
-                <option>10:30</option>
-                <option>11:00</option>
-                <option>11:30</option>
-                <option>12:00</option>
-              </select>
-            </div>
-
-            <div>
-              <label className="mb-2 block text-sm font-semibold text-neutral-300">
-                Nombre
-              </label>
-
-              <input
-                type="text"
-                placeholder="Tu nombre"
-                className="w-full rounded-lg border border-white/10 bg-neutral-950 px-4 py-4 text-white outline-none transition placeholder:text-neutral-600 focus:border-red-500"
-              />
-            </div>
-
-            <div>
-              <label className="mb-2 block text-sm font-semibold text-neutral-300">
-                Teléfono
-              </label>
-
-              <input
-                type="tel"
-                placeholder="Tu número de WhatsApp"
-                className="w-full rounded-lg border border-white/10 bg-neutral-950 px-4 py-4 text-white outline-none transition placeholder:text-neutral-600 focus:border-red-500"
-              />
-            </div>
-
-            <button
-              type="button"
-              className="mt-2 rounded-lg bg-red-600 px-7 py-4 font-bold transition hover:bg-red-700 md:col-span-2"
-            >
-              CONFIRMAR TURNO
-            </button>
-          </div>
+          <BookingForm />
         </div>
       </section>
 
@@ -281,7 +198,9 @@ export default function Home() {
               Visitá Monkey Barber&apos;s
             </p>
 
-            <h2 className="text-4xl font-black sm:text-5xl">CONTACTO</h2>
+            <h2 className="text-4xl font-black sm:text-5xl">
+              CONTACTO
+            </h2>
 
             <p className="mt-5 max-w-xl text-lg leading-8 text-neutral-400">
               Estamos en Mendoza 7065, Rosario. Atendemos de martes a sábado de
@@ -352,7 +271,10 @@ export default function Home() {
             />
 
             <div>
-              <p className="font-bold">MONKEY BARBER&apos;S</p>
+              <p className="font-bold">
+                MONKEY BARBER&apos;S
+              </p>
+
               <p className="text-sm text-neutral-500">
                 Rosario · EST. 2022
               </p>
@@ -383,11 +305,18 @@ function ServiceCard({
     <article className="group rounded-xl border border-white/10 bg-black p-7 transition duration-300 hover:-translate-y-1 hover:border-red-600/60">
       <div className="mb-8 flex items-start justify-between gap-4">
         <div>
-          <p className="mb-2 text-sm text-neutral-500">{duration}</p>
-          <h3 className="text-2xl font-bold">{name}</h3>
+          <p className="mb-2 text-sm text-neutral-500">
+            {duration}
+          </p>
+
+          <h3 className="text-2xl font-bold">
+            {name}
+          </h3>
         </div>
 
-        <span className="text-2xl font-black text-red-500">{price}</span>
+        <span className="text-2xl font-black text-red-500">
+          {price}
+        </span>
       </div>
 
       <a
@@ -425,9 +354,13 @@ function BarberCard({
           Barber
         </p>
 
-        <h3 className="text-3xl font-black">{name}</h3>
+        <h3 className="text-3xl font-black">
+          {name}
+        </h3>
 
-        <p className="mt-4 leading-7 text-neutral-400">{description}</p>
+        <p className="mt-4 leading-7 text-neutral-400">
+          {description}
+        </p>
 
         <a
           href="#reservar"
@@ -463,7 +396,9 @@ function ContactItem({
         {title}
       </p>
 
-      <p className="mt-2 text-xl font-bold">{value}</p>
+      <p className="mt-2 text-xl font-bold">
+        {value}
+      </p>
     </a>
   );
 }

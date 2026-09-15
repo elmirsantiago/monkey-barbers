@@ -1,7 +1,9 @@
 "use client";
 
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import {
+  useCallback,
   useEffect,
   useMemo,
   useState,
@@ -25,7 +27,17 @@ type Appointment = {
   createdAt: string;
 };
 
-const SERVICE_NAMES: Record<string, string> = {
+type Admin = {
+  id: string;
+  username: string;
+  name: string;
+  role: "admin" | "barber";
+};
+
+const SERVICE_NAMES: Record<
+  string,
+  string
+> = {
   "corte-cejas": "Corte + cejas",
   "corte-barba": "Corte + barba",
   barba: "Barba",
@@ -34,65 +46,176 @@ const SERVICE_NAMES: Record<string, string> = {
 };
 
 export default function AdminPage() {
-  const [appointments, setAppointments] =
-    useState<Appointment[]>([]);
+  const router = useRouter();
 
-  const [selectedDate, setSelectedDate] =
-    useState(getToday());
+  const [admin, setAdmin] =
+    useState<Admin | null>(null);
 
-  const [barberFilter, setBarberFilter] =
-    useState<
-      "all" | "bruno" | "santi"
-    >("all");
+  const [
+    appointments,
+    setAppointments,
+  ] = useState<Appointment[]>([]);
+
+  const [
+    selectedDate,
+    setSelectedDate,
+  ] = useState(getToday());
+
+  const [
+    barberFilter,
+    setBarberFilter,
+  ] = useState<
+    "all" | "bruno" | "santi"
+  >("all");
+
+  const [
+    checkingSession,
+    setCheckingSession,
+  ] = useState(true);
 
   const [loading, setLoading] =
-    useState(true);
+    useState(false);
 
   const [error, setError] =
     useState("");
 
+  // ========================================
+  // CARGAR TURNOS
+  // ========================================
+
+  const loadAppointments =
+    useCallback(async () => {
+      try {
+        setLoading(true);
+        setError("");
+
+        const response = await fetch(
+          `${API_URL}/api/appointments?date=${selectedDate}`,
+          {
+            credentials: "include",
+            cache: "no-store",
+          }
+        );
+
+        if (
+          response.status === 401
+        ) {
+          router.replace(
+            "/admin/login"
+          );
+
+          return;
+        }
+
+        const data =
+          await response.json();
+
+        if (!response.ok) {
+          throw new Error(
+            data.message ||
+              "No se pudieron cargar los turnos"
+          );
+        }
+
+        setAppointments(
+          data.appointments || []
+        );
+      } catch (error) {
+        setError(
+          error instanceof Error
+            ? error.message
+            : "Error cargando los turnos"
+        );
+      } finally {
+        setLoading(false);
+      }
+    }, [selectedDate, router]);
+
+  // ========================================
+  // VERIFICAR SESIÓN
+  // ========================================
+
   useEffect(() => {
+    async function checkSession() {
+      try {
+        const response =
+          await fetch(
+            `${API_URL}/api/admin/me`,
+            {
+              credentials:
+                "include",
+
+              cache: "no-store",
+            }
+          );
+
+        if (!response.ok) {
+          router.replace(
+            "/admin/login"
+          );
+
+          return;
+        }
+
+        const data =
+          await response.json();
+
+        setAdmin(data.admin);
+      } catch {
+        router.replace(
+          "/admin/login"
+        );
+      } finally {
+        setCheckingSession(false);
+      }
+    }
+
+    checkSession();
+  }, [router]);
+
+  // ========================================
+  // CARGAR TURNOS CUANDO HAY SESIÓN
+  // ========================================
+
+  useEffect(() => {
+    if (!admin) {
+      return;
+    }
+
     loadAppointments();
-  }, [selectedDate]);
+  }, [admin, loadAppointments]);
 
-  async function loadAppointments() {
+  // ========================================
+  // LOGOUT
+  // ========================================
+
+  async function handleLogout() {
     try {
-      setLoading(true);
-      setError("");
-
-      const response = await fetch(
-        `${API_URL}/api/appointments?date=${selectedDate}`,
+      await fetch(
+        `${API_URL}/api/admin/logout`,
         {
-          cache: "no-store",
+          method: "POST",
+          credentials: "include",
         }
       );
-
-      const data = await response.json();
-
-      if (!response.ok) {
-        throw new Error(
-          data.message ||
-            "No se pudieron cargar los turnos"
-        );
-      }
-
-      setAppointments(
-        data.appointments || []
-      );
-    } catch (error) {
-      setError(
-        error instanceof Error
-          ? error.message
-          : "Error cargando los turnos"
-      );
     } finally {
-      setLoading(false);
+      router.replace(
+        "/admin/login"
+      );
+
+      router.refresh();
     }
   }
 
+  // ========================================
+  // FILTROS Y ESTADÍSTICAS
+  // ========================================
+
   const filteredAppointments =
     useMemo(() => {
-      if (barberFilter === "all") {
+      if (
+        barberFilter === "all"
+      ) {
         return appointments;
       }
 
@@ -106,30 +229,69 @@ export default function AdminPage() {
       barberFilter,
     ]);
 
-  const totalRevenue = useMemo(() => {
-    return filteredAppointments.reduce(
-      (total, appointment) =>
-        total + appointment.price,
-      0
-    );
-  }, [filteredAppointments]);
+  const totalRevenue =
+    useMemo(() => {
+      return filteredAppointments.reduce(
+        (
+          total,
+          appointment
+        ) =>
+          total +
+          appointment.price,
+        0
+      );
+    }, [filteredAppointments]);
 
   const brunoAppointments =
     appointments.filter(
       (appointment) =>
-        appointment.barber === "bruno"
+        appointment.barber ===
+        "bruno"
     ).length;
 
   const santiAppointments =
     appointments.filter(
       (appointment) =>
-        appointment.barber === "santi"
+        appointment.barber ===
+        "santi"
     ).length;
+
+  // ========================================
+  // VERIFICANDO LOGIN
+  // ========================================
+
+  if (checkingSession) {
+    return (
+      <main className="flex min-h-screen items-center justify-center bg-neutral-950 text-white">
+        <div className="text-center">
+          <p className="text-sm font-semibold text-red-500">
+            Monkey Barber&apos;s
+          </p>
+
+          <p className="mt-3 text-neutral-500">
+            Verificando sesión...
+          </p>
+        </div>
+      </main>
+    );
+  }
+
+  if (!admin) {
+    return (
+      <main className="min-h-screen bg-neutral-950" />
+    );
+  }
+
+  // ========================================
+  // PANEL
+  // ========================================
 
   return (
     <main className="min-h-screen bg-neutral-950 text-white">
+      {/* HEADER */}
+
       <header className="border-b border-white/10 bg-black">
-        <div className="mx-auto flex max-w-7xl items-center justify-between px-6 py-5">
+        <div className="mx-auto flex max-w-7xl items-center justify-between gap-4 px-6 py-5">
           <div>
             <p className="text-xs font-bold uppercase tracking-[0.3em] text-red-500">
               Monkey Barber&apos;s
@@ -140,16 +302,45 @@ export default function AdminPage() {
             </h1>
           </div>
 
-          <Link
-            href="/"
-            className="rounded-lg border border-white/10 px-4 py-2 text-sm font-semibold text-neutral-300 transition hover:border-red-500 hover:text-white"
-          >
-            Ver sitio
-          </Link>
+          <div className="flex items-center gap-3">
+            <div className="hidden text-right sm:block">
+              <p className="text-sm font-bold">
+                Hola, {admin.name}
+              </p>
+
+              <p className="text-xs text-neutral-500">
+                {admin.role ===
+                "admin"
+                  ? "Administrador"
+                  : "Barbero"}
+              </p>
+            </div>
+
+            <Link
+              href="/"
+              className="rounded-lg border border-white/10 px-4 py-2 text-sm font-semibold text-neutral-300 transition hover:border-white/30 hover:text-white"
+            >
+              Ver sitio
+            </Link>
+
+            <button
+              type="button"
+              onClick={
+                handleLogout
+              }
+              className="rounded-lg border border-red-500/30 px-4 py-2 text-sm font-bold text-red-500 transition hover:bg-red-600 hover:text-white"
+            >
+              Cerrar sesión
+            </button>
+          </div>
         </div>
       </header>
 
+      {/* CONTENIDO */}
+
       <div className="mx-auto max-w-7xl px-6 py-8">
+        {/* TITULO */}
+
         <section className="mb-8">
           <p className="text-sm font-semibold text-red-500">
             Agenda
@@ -160,10 +351,12 @@ export default function AdminPage() {
           </h2>
 
           <p className="mt-2 text-neutral-400">
-            Administrá las reservas de
-            Bruno y Santi.
+            Administrá las reservas
+            de Bruno y Santi.
           </p>
         </section>
+
+        {/* FILTROS */}
 
         <section className="mb-8 flex flex-col gap-4 rounded-2xl border border-white/10 bg-black p-5 md:flex-row md:items-end md:justify-between">
           <div className="w-full md:max-w-xs">
@@ -177,10 +370,15 @@ export default function AdminPage() {
             <input
               id="admin-date"
               type="date"
-              value={selectedDate}
-              onChange={(event) =>
+              value={
+                selectedDate
+              }
+              onChange={(
+                event
+              ) =>
                 setSelectedDate(
-                  event.target.value
+                  event.target
+                    .value
                 )
               }
               className="w-full rounded-lg border border-white/10 bg-neutral-950 px-4 py-3 text-white outline-none transition focus:border-red-500"
@@ -195,10 +393,13 @@ export default function AdminPage() {
             <div className="flex flex-wrap gap-2">
               <FilterButton
                 active={
-                  barberFilter === "all"
+                  barberFilter ===
+                  "all"
                 }
                 onClick={() =>
-                  setBarberFilter("all")
+                  setBarberFilter(
+                    "all"
+                  )
                 }
               >
                 Todos
@@ -206,10 +407,13 @@ export default function AdminPage() {
 
               <FilterButton
                 active={
-                  barberFilter === "bruno"
+                  barberFilter ===
+                  "bruno"
                 }
                 onClick={() =>
-                  setBarberFilter("bruno")
+                  setBarberFilter(
+                    "bruno"
+                  )
                 }
               >
                 Bruno
@@ -217,10 +421,13 @@ export default function AdminPage() {
 
               <FilterButton
                 active={
-                  barberFilter === "santi"
+                  barberFilter ===
+                  "santi"
                 }
                 onClick={() =>
-                  setBarberFilter("santi")
+                  setBarberFilter(
+                    "santi"
+                  )
                 }
               >
                 Santi
@@ -228,6 +435,8 @@ export default function AdminPage() {
             </div>
           </div>
         </section>
+
+        {/* ESTADÍSTICAS */}
 
         <section className="mb-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
           <StatCard
@@ -253,11 +462,15 @@ export default function AdminPage() {
           />
         </section>
 
+        {/* ERROR */}
+
         {error && (
           <div className="mb-6 rounded-xl border border-red-500/30 bg-red-500/10 p-5 text-red-400">
             {error}
           </div>
         )}
+
+        {/* CARGANDO */}
 
         {loading && (
           <div className="rounded-2xl border border-white/10 bg-black p-10 text-center">
@@ -266,6 +479,8 @@ export default function AdminPage() {
             </p>
           </div>
         )}
+
+        {/* SIN TURNOS */}
 
         {!loading &&
           !error &&
@@ -281,13 +496,16 @@ export default function AdminPage() {
               </h3>
 
               <p className="mt-2 text-neutral-500">
-                No hay reservas para esta
-                fecha y barbero.
+                No hay reservas para
+                esta fecha y barbero.
               </p>
             </div>
           )}
 
+        {/* LISTA DE TURNOS */}
+
         {!loading &&
+          !error &&
           filteredAppointments.length >
             0 && (
             <section className="space-y-4">
@@ -310,7 +528,9 @@ export default function AdminPage() {
               </div>
 
               {filteredAppointments.map(
-                (appointment) => (
+                (
+                  appointment
+                ) => (
                   <AppointmentCard
                     key={
                       appointment._id
@@ -331,6 +551,10 @@ export default function AdminPage() {
   );
 }
 
+// ==========================================
+// TARJETA DE TURNO
+// ==========================================
+
 function AppointmentCard({
   appointment,
   onCancelled,
@@ -338,11 +562,14 @@ function AppointmentCard({
   appointment: Appointment;
   onCancelled: () => Promise<void>;
 }) {
-  const [cancelling, setCancelling] =
-    useState(false);
+  const [
+    cancelling,
+    setCancelling,
+  ] = useState(false);
 
   const barberName =
-    appointment.barber === "bruno"
+    appointment.barber ===
+    "bruno"
       ? "Bruno"
       : "Santi";
 
@@ -364,12 +591,24 @@ function AppointmentCard({
     try {
       setCancelling(true);
 
-      const response = await fetch(
-        `${API_URL}/api/appointments/${appointment._id}/cancel`,
-        {
-          method: "PATCH",
-        }
-      );
+      const response =
+        await fetch(
+          `${API_URL}/api/appointments/${appointment._id}/cancel`,
+          {
+            method: "PATCH",
+            credentials:
+              "include",
+          }
+        );
+
+      if (
+        response.status === 401
+      ) {
+        window.location.href =
+          "/admin/login";
+
+        return;
+      }
 
       const data =
         await response.json();
@@ -396,6 +635,8 @@ function AppointmentCard({
   return (
     <article className="overflow-hidden rounded-2xl border border-white/10 bg-black transition hover:border-white/20">
       <div className="flex flex-col md:flex-row">
+        {/* HORA */}
+
         <div className="flex min-w-32 items-center justify-center bg-red-600 px-6 py-6 md:py-0">
           <div className="text-center">
             <p className="text-3xl font-black">
@@ -403,11 +644,15 @@ function AppointmentCard({
             </p>
 
             <p className="mt-1 text-xs font-bold uppercase tracking-widest text-red-100">
-              {appointment.duration}{" "}
+              {
+                appointment.duration
+              }{" "}
               min
             </p>
           </div>
         </div>
+
+        {/* DATOS */}
 
         <div className="flex flex-1 flex-col gap-5 p-6 lg:flex-row lg:items-center lg:justify-between">
           <div>
@@ -447,6 +692,8 @@ function AppointmentCard({
             </div>
           </div>
 
+          {/* PRECIO / WHATSAPP / CANCELAR */}
+
           <div className="lg:text-right">
             <p className="text-2xl font-black">
               $
@@ -471,8 +718,12 @@ function AppointmentCard({
 
             <button
               type="button"
-              onClick={handleCancel}
-              disabled={cancelling}
+              onClick={
+                handleCancel
+              }
+              disabled={
+                cancelling
+              }
               className="mt-4 rounded-lg border border-red-500/30 px-4 py-2 text-sm font-bold text-red-500 transition hover:bg-red-600 hover:text-white disabled:cursor-not-allowed disabled:opacity-50"
             >
               {cancelling
@@ -485,6 +736,10 @@ function AppointmentCard({
     </article>
   );
 }
+
+// ==========================================
+// TARJETAS DE ESTADÍSTICAS
+// ==========================================
 
 function StatCard({
   label,
@@ -505,6 +760,10 @@ function StatCard({
     </div>
   );
 }
+
+// ==========================================
+// BOTONES DE FILTRO
+// ==========================================
 
 function FilterButton({
   active,
@@ -529,6 +788,10 @@ function FilterButton({
     </button>
   );
 }
+
+// ==========================================
+// HELPERS
+// ==========================================
 
 function getToday() {
   const today = new Date();
@@ -576,7 +839,9 @@ function normalizeWhatsappPhone(
   const digits =
     phone.replace(/\D/g, "");
 
-  if (digits.startsWith("54")) {
+  if (
+    digits.startsWith("54")
+  ) {
     return digits;
   }
 

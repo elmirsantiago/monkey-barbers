@@ -120,8 +120,8 @@ const createAppointment = async (data) => {
     customerPhone: customerPhone.trim(),
   });
 
-  // El turno ya está guardado.
-  // Si WhatsApp falla, NO perdemos la reserva.
+  // El turno ya quedó guardado.
+  // Si WhatsApp falla, no perdemos la reserva.
   try {
     await sendAppointmentConfirmation({
       customerName: appointment.customerName,
@@ -143,7 +143,7 @@ const createAppointment = async (data) => {
 };
 
 // ==========================================
-// CONSULTAR DISPONIBILIDAD
+// DISPONIBILIDAD
 // ==========================================
 
 const getAvailability = async (
@@ -216,7 +216,7 @@ const getAvailability = async (
 };
 
 // ==========================================
-// LISTAR TURNOS
+// LISTAR TURNOS - ADMIN
 // ==========================================
 
 const getAppointments = async (date) => {
@@ -225,7 +225,13 @@ const getAppointments = async (date) => {
   };
 
   if (date) {
-    validateDate(date);
+    const selectedDate =
+      createLocalDate(date);
+
+    if (!selectedDate) {
+      throw new Error("Fecha inválida");
+    }
+
     filter.date = date;
   }
 
@@ -247,13 +253,17 @@ const cancelAppointment = async (
   appointmentId
 ) => {
   const appointment =
-    await Appointment.findById(appointmentId);
+    await Appointment.findById(
+      appointmentId
+    );
 
   if (!appointment) {
     throw new Error("Turno no encontrado");
   }
 
-  if (appointment.status === "cancelled") {
+  if (
+    appointment.status === "cancelled"
+  ) {
     throw new Error(
       "El turno ya está cancelado"
     );
@@ -267,11 +277,12 @@ const cancelAppointment = async (
 };
 
 // ==========================================
-// VALIDACIONES Y HELPERS
+// VALIDACIONES
 // ==========================================
 
 function validateDate(date) {
-  const selectedDate = createLocalDate(date);
+  const selectedDate =
+    createLocalDate(date);
 
   if (!selectedDate) {
     throw new Error("Fecha inválida");
@@ -296,7 +307,10 @@ function validateDate(date) {
   }
 }
 
-function validateTime(time, duration) {
+function validateTime(
+  time,
+  duration
+) {
   const start = timeToMinutes(time);
 
   if (start === null) {
@@ -326,9 +340,8 @@ function timeToMinutes(time) {
     return null;
   }
 
-  const [hours, minutes] = time
-    .split(":")
-    .map(Number);
+  const [hours, minutes] =
+    time.split(":").map(Number);
 
   if (
     Number.isNaN(hours) ||
@@ -344,7 +357,9 @@ function timeToMinutes(time) {
   return hours * 60 + minutes;
 }
 
-function minutesToTime(totalMinutes) {
+function minutesToTime(
+  totalMinutes
+) {
   const hours = Math.floor(
     totalMinutes / 60
   );
@@ -362,13 +377,16 @@ function minutesToTime(totalMinutes) {
 }
 
 function createLocalDate(date) {
-  if (!/^\d{4}-\d{2}-\d{2}$/.test(date)) {
+  if (
+    !/^\d{4}-\d{2}-\d{2}$/.test(
+      date
+    )
+  ) {
     return null;
   }
 
-  const [year, month, day] = date
-    .split("-")
-    .map(Number);
+  const [year, month, day] =
+    date.split("-").map(Number);
 
   const result = new Date(
     year,
@@ -378,7 +396,8 @@ function createLocalDate(date) {
 
   if (
     result.getFullYear() !== year ||
-    result.getMonth() !== month - 1 ||
+    result.getMonth() !==
+      month - 1 ||
     result.getDate() !== day
   ) {
     return null;

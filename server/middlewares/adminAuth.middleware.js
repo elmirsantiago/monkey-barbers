@@ -25,7 +25,7 @@ const requireAdmin = (
     req.admin = decoded;
 
     next();
-  } catch (error) {
+  } catch {
     return res.status(401).json({
       status: "error",
       message:

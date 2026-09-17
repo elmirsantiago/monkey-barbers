@@ -1,63 +1,45 @@
 const express = require("express");
 const cors = require("cors");
 const dotenv = require("dotenv");
-const cookieParser = require(
-  "cookie-parser"
-);
+const cookieParser = require("cookie-parser");
 
 dotenv.config();
 
-const connectDB = require(
-  "./config/db"
-);
+const connectDB = require("./config/db");
 
-const appointmentRoutes = require(
-  "./routes/appointment.routes"
-);
-
-const adminRoutes = require(
-  "./routes/admin.routes"
-);
+const appointmentRoutes = require("./routes/appointment.routes");
+const adminRoutes = require("./routes/admin.routes");
+const blockedTimeRoutes = require("./routes/blockedTime.routes");
 
 const app = express();
 
-const PORT =
-  process.env.API_PORT || 4000;
+const PORT = process.env.API_PORT || 4000;
 
+// Middlewares
 app.use(
   cors({
-    origin:
-      "http://localhost:3000",
-
+    origin: "http://localhost:3000",
     credentials: true,
   })
 );
 
 app.use(express.json());
-
 app.use(cookieParser());
 
-app.get(
-  "/api/health",
-  (req, res) => {
-    res.status(200).json({
-      status: "ok",
-      message:
-        "Monkey Barber's API funcionando",
-    });
-  }
-);
+// Health check
+app.get("/api/health", (req, res) => {
+  res.status(200).json({
+    status: "ok",
+    message: "Monkey Barber's API funcionando",
+  });
+});
 
-app.use(
-  "/api/appointments",
-  appointmentRoutes
-);
+// Rutas
+app.use("/api/appointments", appointmentRoutes);
+app.use("/api/admin", adminRoutes);
+app.use("/api/blocked-times", blockedTimeRoutes);
 
-app.use(
-  "/api/admin",
-  adminRoutes
-);
-
+// Iniciar servidor
 const startServer = async () => {
   await connectDB();
 

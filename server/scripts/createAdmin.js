@@ -8,35 +8,109 @@ const Admin = require("../models/Admin");
 
 const createAdmin = async () => {
   try {
+    // ==========================================
+    // VARIABLES DE ENTORNO
+    // ==========================================
+
+    const username =
+      process.env.ADMIN_USERNAME;
+
+    const plainPassword =
+      process.env.ADMIN_PASSWORD;
+
+    const name =
+      process.env.ADMIN_NAME;
+
+    const role =
+      process.env.ADMIN_ROLE || "admin";
+
+    // ==========================================
+    // VALIDAR CONFIGURACIÓN
+    // ==========================================
+
+    if (
+      !username ||
+      !plainPassword ||
+      !name
+    ) {
+      throw new Error(
+        "Faltan ADMIN_USERNAME, ADMIN_PASSWORD o ADMIN_NAME en el archivo .env"
+      );
+    }
+
+    if (
+      !["admin", "barber"].includes(role)
+    ) {
+      throw new Error(
+        "ADMIN_ROLE debe ser admin o barber"
+      );
+    }
+
+    if (plainPassword.length < 8) {
+      throw new Error(
+        "ADMIN_PASSWORD debe tener al menos 8 caracteres"
+      );
+    }
+
+    // ==========================================
+    // CONECTAR A MONGODB
+    // ==========================================
+
     await connectDB();
 
-    const username = "bruno";
-    const plainPassword = "Monkey1234";
+    // ==========================================
+    // COMPROBAR SI YA EXISTE
+    // ==========================================
 
-    const existingAdmin = await Admin.findOne({
-      username,n
-    });
+    const normalizedUsername =
+      username.trim().toLowerCase();
+
+    const existingAdmin =
+      await Admin.findOne({
+        username: normalizedUsername,
+      });
 
     if (existingAdmin) {
-      console.log("⚠️ El usuario ya existe");
+      console.log(
+        "⚠️ El usuario ya existe"
+      );
+
       process.exit(0);
     }
 
-    const hashedPassword = await bcrypt.hash(
-      plainPassword,
-      10
-    );
+    // ==========================================
+    // HASHEAR CONTRASEÑA
+    // ==========================================
+
+    const hashedPassword =
+      await bcrypt.hash(
+        plainPassword,
+        10
+      );
+
+    // ==========================================
+    // CREAR ADMIN
+    // ==========================================
 
     await Admin.create({
-      username,
+      username: normalizedUsername,
       password: hashedPassword,
-      name: "Bruno",
-      role: "admin",
+      name: name.trim(),
+      role,
     });
 
-    console.log("✅ Usuario admin creado");
-    console.log("Usuario:", username);
-    console.log("Contraseña:", plainPassword);
+    console.log(
+      "✅ Usuario admin creado correctamente"
+    );
+
+    console.log(
+      "Usuario:",
+      normalizedUsername
+    );
+
+    // IMPORTANTE:
+    // nunca mostramos la contraseña
+    // en la consola.
 
     process.exit(0);
   } catch (error) {

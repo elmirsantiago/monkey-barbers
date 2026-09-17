@@ -8,6 +8,7 @@ import {
   useMemo,
   useState,
 } from "react";
+import BlockedTimesManager from "@/components/admin/BlockedTimesManager";
 
 const API_URL =
   process.env.NEXT_PUBLIC_API_URL ||
@@ -177,14 +178,19 @@ export default function AdminPage() {
   // CARGAR TURNOS CUANDO HAY SESIÓN
   // ========================================
 
-  useEffect(() => {
-    if (!admin) {
-      return;
-    }
+ useEffect(() => {
+  if (!admin) {
+    return;
+  }
 
-    loadAppointments();
-  }, [admin, loadAppointments]);
+  const timeoutId = window.setTimeout(() => {
+    void loadAppointments();
+  }, 0);
 
+  return () => {
+    window.clearTimeout(timeoutId);
+  };
+}, [admin, loadAppointments]);
   // ========================================
   // LOGOUT
   // ========================================
@@ -461,6 +467,11 @@ export default function AdminPage() {
             value={`${santiAppointments} turnos`}
           />
         </section>
+        {/* BLOQUEOS DE AGENDA */}
+
+          <BlockedTimesManager
+            selectedDate={selectedDate}
+          />
 
         {/* ERROR */}
 
@@ -562,6 +573,7 @@ function AppointmentCard({
   appointment: Appointment;
   onCancelled: () => Promise<void>;
 }) {
+  const router = useRouter();
   const [
     cancelling,
     setCancelling,
@@ -602,12 +614,13 @@ function AppointmentCard({
         );
 
       if (
-        response.status === 401
-      ) {
-        window.location.href =
-          "/admin/login";
+      response.status === 401
+) {
+      router.replace(
+     "/admin/login"
+  ); 
 
-        return;
+  return;
       }
 
       const data =
